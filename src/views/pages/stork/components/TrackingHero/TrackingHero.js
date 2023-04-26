@@ -22,18 +22,27 @@ const TrackingForm = ({ setResults }) => {
   const [trackingNumbers, setTrackingNumbers] = useState([])
   const [value, setValue] = useState("")
   const [error, setError] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
 
   const removeNumber = (number) => {
     setTrackingNumbers((prev) => prev.filter((n) => n !== number))
   }
 
   const handleSubmit = useCallback(async () => {
+    setResults([])
+    setIsLoading(true)
     let trackData = []
     if (!trackingNumbers.length) {
-      trackData.push(value)
+      trackData = value
+        .split("\n")
+        .filter((n) => n.length > 0)
+        .map((n) => n.trim().replace(/[^a-z0-9]/gi, ""))
     } else {
       trackData = trackingNumbers
     }
+    setTrackingNumbers([])
+    setError("")
+    setValue("")
     const res = await fetch("http://127.0.0.1:8080/api/tracks", {
       method: "POST",
       headers: {
@@ -47,6 +56,7 @@ const TrackingForm = ({ setResults }) => {
     })
     const txt = await res.text()
     setResults(JSON.parse(txt))
+    setIsLoading(false)
   }, [trackingNumbers, value])
 
   const handleInputChange = (e) => {
@@ -55,18 +65,25 @@ const TrackingForm = ({ setResults }) => {
     }
     if (e.key === "Enter") {
       setTrackingNumbers((prev) => {
-        if (prev.includes(e.target.value)) {
-          setError("Tracking number already added")
-          return prev
-        } else {
-          if (e.target.value) {
-            let targetValue = e.target.value
-            targetValue = targetValue.replace(/[^a-z0-9]/gi, "")
-            setValue("")
-            return [...prev, targetValue]
-          }
-        }
+        const targetAsArray = e.target.value
+          .replace(/,/g, "\n")
+          .split("\n")
+          .filter((n) => n.length > 0)
+          .map((n) => n.trim().replace(/[^a-z0-9]/gi, ""))
+          .filter((number, _, arr) => {
+            if (!prev.includes(number)) {
+              return number
+            } else {
+              if (arr.length === 1) {
+                setError("Tracking number already added")
+              } else {
+                setError("Some tracking numbers already added")
+              }
+            }
+          })
+        return [...prev, ...targetAsArray]
       })
+      setValue("")
     }
   }
 
@@ -84,14 +101,21 @@ const TrackingForm = ({ setResults }) => {
           ))}
         </div>
         <div className="tracking__input-container d-flex">
-          <input
+          <textarea
             type="text"
+            rows="1"
+            resize="none"
             className="tracking__input"
             placeholder="Add your tracking numbers"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            disabled={isLoading}
+            onChange={(e) => {
+              setError("")
+              setValue(e.target.value)
+            }}
             onKeyUp={(e) => handleInputChange(e)}
           />
+
           <button
             className="tracking__button"
             onClick={() => handleSubmit()}
@@ -100,7 +124,7 @@ const TrackingForm = ({ setResults }) => {
             <span>
               <ArrowRight size={30} />
             </span>
-            <span>Track</span>
+            <span>{isLoading ? "Tracking..." : "Track"}</span>
           </button>
         </div>
         {error && <p className="tracking__error">{error}</p>}

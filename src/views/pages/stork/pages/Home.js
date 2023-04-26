@@ -2,7 +2,17 @@ import React, { useEffect, useRef, useState } from "react"
 import Layout from "../components/Layout/Layout"
 import Header from "../components/Header/Header"
 import TrackingHero from "../components/TrackingHero/TrackingHero"
-import { Card, CardBody, CardTitle, CardText, Badge, Button } from "reactstrap"
+// ** Custom Components
+import Timeline from "@components/timeline"
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  CardText,
+  Badge,
+  CardHeader,
+  Button,
+} from "reactstrap"
 import moment from "moment"
 
 /*
@@ -45,6 +55,7 @@ const ResultCard = ({ result }) => {
     source,
     status,
     finalUpdateDate,
+    states = [],
   } = result
 
   return (
@@ -57,7 +68,28 @@ const ResultCard = ({ result }) => {
           <CardTitle className="mt-1 mb-75">
             {shipmentTrackingNumber} - {deliveryCompany}
           </CardTitle>
-          <CardText className="mb-2">{status}</CardText>
+          {states.length > 0 ? (
+            <>
+              <Card>
+                <CardHeader>
+                  <CardTitle tag="h4">History</CardTitle>
+                </CardHeader>
+                <CardBody>
+                  <Timeline
+                    data={states.map((st) => {
+                      const dt = moment(st.date).utc().format("DD-MM-YYYY")
+                      return {
+                        title: dt,
+                        content: st.status,
+                      }
+                    })}
+                  />
+                </CardBody>
+              </Card>
+            </>
+          ) : (
+            <CardText className="mb-2">{status}</CardText>
+          )}
           <div className="design-planning-wrapper mb-2 py-75">
             <div className="design-planning">
               <CardText className="mb-25">Origin Country</CardText>
