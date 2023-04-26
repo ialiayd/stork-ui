@@ -1,0 +1,12 @@
+.header {
+  min-height: calc(75vh - 5rem);
+  @media screen and (max-width: 567px) {
+    height: calc(100vh - 5rem);
+  }
+  background-color: var(--color-primary);
+  background-image: url("../../../../../assets/images/stork/logo-bg.png");
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  background-size: 40%;
+  display: flex;
+}

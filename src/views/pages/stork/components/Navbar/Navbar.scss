@@ -1,0 +1,22 @@
+.navigation-custom {
+  min-height: 5rem;
+  display: flex;
+  align-items: center;
+  &__button {
+    display: inline-block;
+    margin-left: auto;
+    background-color: var(--color-black);
+    box-shadow: 9px 25px 25px -21px rgba(0, 0, 0, 0.75);
+    border-radius: 5px;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    color: var(--color-white);
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    &:hover {
+      background-color: var(--color-primary);
+      color: var(--color-black);
+    }
+  }
+}
